@@ -1,0 +1,216 @@
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+public class EscritorioAdvocacia {
+    private static Scanner scanner = new Scanner(System.in);
+    private static List<Advogado> advogados = new ArrayList<>();
+    private static List<Cliente> clientes = new ArrayList<>();
+    private static List<Processo> processos = new ArrayList<>();
+
+    public static void main(String[] args) {
+        int opcao;
+        do {
+            System.out.println("Sistema de Escritório de Advocacia");
+            System.out.println("1. Cadastrar Advogado");
+            System.out.println("2. Cadastrar Cliente");
+            System.out.println("3. Cadastrar Processo");
+            System.out.println("4. Listar Advogados");
+            System.out.println("5. Listar Clientes");
+            System.out.println("6. Listar Processos");
+            System.out.println("0. Sair");
+            System.out.print("Escolha uma opção: ");
+            opcao = scanner.nextInt();
+            scanner.nextLine(); // Limpar buffer
+
+            switch (opcao) {
+                case 1:
+                    cadastrarAdvogado();
+                    break;
+                case 2:
+                    cadastrarCliente();
+                    break;
+                case 3:
+                    cadastrarProcesso();
+                    break;
+                case 4:
+                    listarAdvogados();
+                    break;
+                case 5:
+                    listarClientes();
+                    break;
+                case 6:
+                    listarProcessos();
+                    break;
+                case 0:
+                    System.out.println("Saindo...");
+                    break;
+                default:
+                    System.out.println("Opção inválida!");
+            }
+        } while (opcao != 0);
+    }
+
+    private static void cadastrarAdvogado() {
+        System.out.print("Nome do advogado: ");
+        String nome = scanner.nextLine();
+        System.out.print("Área de atuação: ");
+        String area = scanner.nextLine();
+        System.out.print("Honorários por hora: ");
+        double honorarios = scanner.nextDouble();
+        scanner.nextLine(); // Limpar buffer
+
+        advogados.add(new Advogado(nome, area, honorarios));
+        System.out.println("Advogado cadastrado com sucesso!");
+    }
+
+    private static void cadastrarCliente() {
+        System.out.println("1. Pessoa Física");
+        System.out.println("2. Pessoa Jurídica");
+        System.out.print("Escolha o tipo de cliente: ");
+        int tipo = scanner.nextInt();
+        scanner.nextLine(); // Limpar buffer
+
+        if (tipo == 1) {
+            System.out.print("Nome: ");
+            String nome = scanner.nextLine();
+            System.out.print("CPF: ");
+            String cpf = scanner.nextLine();
+            clientes.add(new PessoaFisica(nome, cpf));
+        } else if (tipo == 2) {
+            System.out.print("Nome da Empresa: ");
+            String nome = scanner.nextLine();
+            System.out.print("CNPJ: ");
+            String cnpj = scanner.nextLine();
+            clientes.add(new PessoaJuridica(nome, cnpj));
+        } else {
+            System.out.println("Opção inválida!");
+        }
+    }
+
+    private static void cadastrarProcesso() {
+        System.out.print("Nome do processo: ");
+        String nome = scanner.nextLine();
+        System.out.print("Tribunal: ");
+        String tribunal = scanner.nextLine();
+        System.out.print("Honorários: ");
+        double honorarios = scanner.nextDouble();
+        scanner.nextLine(); // Limpar buffer
+
+        System.out.println("Escolha o advogado responsável:");
+        listarAdvogados();
+        int idAdvogado = scanner.nextInt();
+        scanner.nextLine(); // Limpar buffer
+
+        System.out.println("Escolha o cliente relacionado:");
+        listarClientes();
+        int idCliente = scanner.nextInt();
+        scanner.nextLine(); // Limpar buffer
+
+        Advogado advogado = advogados.get(idAdvogado - 1);
+        Cliente cliente = clientes.get(idCliente - 1);
+        processos.add(new Processo(nome, tribunal, honorarios, advogado, cliente));
+
+        System.out.println("Processo cadastrado com sucesso!");
+    }
+
+    private static void listarAdvogados() {
+        for (int i = 0; i < advogados.size(); i++) {
+            System.out.println((i + 1) + ". " + advogados.get(i));
+        }
+    }
+
+    private static void listarClientes() {
+        for (int i = 0; i < clientes.size(); i++) {
+            System.out.println((i + 1) + ". " + clientes.get(i));
+        }
+    }
+
+    private static void listarProcessos() {
+        for (Processo processo : processos) {
+            System.out.println(processo);
+        }
+    }
+}
+class Advogado {
+    private String nome;
+    private String areaAtuacao;
+    private double honorariosPorHora;
+
+    public Advogado(String nome, String areaAtuacao, double honorariosPorHora) {
+        this.nome = nome;
+        this.areaAtuacao = areaAtuacao;
+        this.honorariosPorHora = honorariosPorHora;
+    }
+
+    @Override
+    public String toString() {
+        return "Advogado: " + nome + ", Área: " + areaAtuacao + ", Honorários: " + honorariosPorHora + " por hora";
+    }
+}
+abstract class Cliente {
+    protected String nome;
+
+    public Cliente(String nome) {
+        this.nome = nome;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    @Override
+    public String toString() {
+        return "Cliente: " + nome;
+    }
+}
+
+class PessoaFisica extends Cliente {
+    private String cpf;
+
+    public PessoaFisica(String nome, String cpf) {
+        super(nome);
+        this.cpf = cpf;
+    }
+
+    @Override
+    public String toString() {
+        return super.toString() + " (CPF: " + cpf + ")";
+    }
+}
+
+class PessoaJuridica extends Cliente {
+    private String cnpj;
+
+    public PessoaJuridica(String nome, String cnpj) {
+        super(nome);
+        this.cnpj = cnpj;
+    }
+
+    @Override
+    public String toString() {
+        return super.toString() + " (CNPJ: " + cnpj + ")";
+    }
+}
+class Processo {
+    private String nome;
+    private String tribunal;
+    private double honorarios;
+    private Advogado advogado;
+    private Cliente cliente;
+
+    public Processo(String nome, String tribunal, double honorarios, Advogado advogado, Cliente cliente) {
+        this.nome = nome;
+        this.tribunal = tribunal;
+        this.honorarios = honorarios;
+        this.advogado = advogado;
+        this.cliente = cliente;
+    }
+
+    @Override
+    public String toString() {
+        return "Processo: " + nome + ", Tribunal: " + tribunal + ", Honorários: " + honorarios +
+                "\nAdvogado: " + advogado +
+                "\nCliente: " + cliente;
+    }
+}
